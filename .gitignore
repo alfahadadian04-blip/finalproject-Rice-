@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+myenv/
+venv/
+env/
+
+# Node modules
+front end/node_modules/
+
+# Large datasets
+Original Dataset/
+dataset/
+processed/
+
+# Model files (optional - uncomment if you want to exclude)
+# rice_resnet_model.pth
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
