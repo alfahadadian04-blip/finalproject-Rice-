@@ -6,6 +6,8 @@
 
 **Document purpose:** This file follows the **section structure and depth** of the reference course document (*Machine-Learning.pdf*, local path `D:/Bagopoito/Machine-Learning.pdf`) while describing **this project’s** implementation: a browser-based **WMSU Rice Disease Detection** application using **YOLO11 classification**, **FastAPI**, and **React** (not the reference paper’s drought/pest/healthy three-class ResNet18 + Flask + React Native stack). Fill in **Submitted by:** and **Date:** on your title page when binding.
 
+**Need ~40 pages in Word/PDF?** Use the generated long edition: [`SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT_EXPANDED.md`](./SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT_EXPANDED.md) (see `docs/build_long_professor_doc.py`).
+
 ---
 
 # Chapter 1 — Introduction
