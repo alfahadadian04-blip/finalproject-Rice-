@@ -9,6 +9,7 @@ Production-ready rice variety and condition classifier powered by FastAPI + YOLO
 
 ## Documentation
 
+- **Professor PDF format (WMSU-style, full methodology):** [docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT.md](docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT.md) — mirrors the structure of `Machine-Learning.pdf` (Ch. I–III, architecture, ML pipeline, testing, tools, UI, Abstract, References) for **this** FastAPI + React + YOLO11-cls system.
 - **Thesis-style (Chapters 1–5):** [docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md) — introduction, RRL, methodology, results, summary/recommendations.
 - **Code reference (Chapters 1–5):** [docs/CODE_REFERENCE_CHAPTERS_1_TO_5.md](docs/CODE_REFERENCE_CHAPTERS_1_TO_5.md) — repository map and implementation walkthrough.
 
