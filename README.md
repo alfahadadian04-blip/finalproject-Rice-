@@ -9,6 +9,7 @@ Production-ready rice variety and condition classifier powered by FastAPI + YOLO
 
 ## Documentation
 
+- **Full system documentation (GitHub, ~30+ pages in Word):** [docs/SYSTEM_DOCUMENTATION_FOR_GITHUB.md](docs/SYSTEM_DOCUMENTATION_FOR_GITHUB.md) — technical manual for [github.com/alfahadadian04-blip/rafsan](https://github.com/alfahadadian04-blip/rafsan.git); regenerate with `myenv\Scripts\python.exe docs\generate_github_system_documentation.py` (~17k words).
 - **Professor PDF format (~40+ pages in Word at 12pt/1.5 spacing):** [docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT_EXPANDED.md](docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT_EXPANDED.md) — long-form thesis-style body + appendices; regenerate with `myenv\Scripts\python.exe docs\build_long_professor_doc.py`.
 - **Professor PDF format (concise edition):** [docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT.md](docs/SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT.md) — same template alignment, shorter read.
 - **Thesis-style (Chapters 1–5):** [docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md) — introduction, RRL, methodology, results, summary/recommendations.
