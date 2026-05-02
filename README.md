@@ -7,6 +7,11 @@ Production-ready rice variety and condition classifier powered by FastAPI + YOLO
 - `backend/` - FastAPI app and trained model weights
 - `frontend/` - React app source
 
+## Documentation
+
+- **Thesis-style (Chapters 1–5):** [docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md) — introduction, RRL, methodology, results, summary/recommendations.
+- **Code reference (Chapters 1–5):** [docs/CODE_REFERENCE_CHAPTERS_1_TO_5.md](docs/CODE_REFERENCE_CHAPTERS_1_TO_5.md) — repository map and implementation walkthrough.
+
 ## Run as a Website (Production-style)
 
 1. Install backend dependencies:
