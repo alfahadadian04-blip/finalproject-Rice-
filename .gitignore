@@ -16,7 +16,14 @@ frontend/dist/
 # Large datasets
 Original Dataset/
 dataset/
+dataset_original_split/
 processed/
+
+# Training outputs (large, reproducible from scripts)
+runs/
+
+# Duplicate model at repo root (canonical copy is backend/yolo11n-cls.pt)
+/yolo11n-cls.pt
 
 # Model files (optional - uncomment if you want to exclude)
 # rice_resnet_model.pth
