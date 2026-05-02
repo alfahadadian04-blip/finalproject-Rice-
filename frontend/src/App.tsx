@@ -350,7 +350,7 @@ function App() {
                 <section className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
                   <h4 className="text-base font-semibold text-slate-900">Realtime Test Flow</h4>
                   <ul className="mt-2 list-disc space-y-1 pl-5">
-                    <li>Home: Dashboard summary active</li>
+                    <li>Home: Overview and session scan summary</li>
                     <li>Scan: Upload image and run inference</li>
                     <li>Encyclopedia: Disease guidance library available</li>
                     <li>History: {history.length} scan records stored in session</li>
