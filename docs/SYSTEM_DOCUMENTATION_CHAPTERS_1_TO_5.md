@@ -1,233 +1,155 @@
 # System Documentation — Chapters 1 to 5
 
-**Official repository:** [https://github.com/alfahadadian04-blip/rafsan.git](https://github.com/alfahadadian04-blip/rafsan.git)  
-
 **System title:** WMSU Rice Disease Detection  
 
-**Document type:** End-to-end system description (introduction through conclusions) aligned with common thesis chapter numbering.
+**Repository:** [https://github.com/alfahadadian04-blip/rafsan.git](https://github.com/alfahadadian04-blip/rafsan.git)  
+
+**Implementation summary:** FastAPI backend (`backend/main.py`), Ultralytics **YOLO11n-cls** weights at `backend/yolo11n-cls.pt`, React + TypeScript + Vite frontend (`frontend/src/`). API version **2026.1.0**.  
+
+**Document purpose:** Academic-style chapters 1–5 describing the **actual** behavior of the software as implemented in this repository.  
+
+**Last updated:** May 2026.
 
 ---
 
 ## Chapter 1 — Introduction
 
-### 1.1 Background of the study
+### 1.1 Background of the Study
 
-Rice (*Oryza sativa* L.) supports food security for a large share of the world’s population. In the field, **leaf symptoms** often appear before yield loss becomes irreversible: lesions, stripes, chlorosis, folding, and deformation patterns associated with pathogens, viruses, insect damage, or abiotic stress. Correct **early orientation** toward possible causes helps farmers, students, and extension staff prioritize scouting, sampling, and (where appropriate) expert consultation.
+Rice (*Oryza sativa* L.) is a staple crop for a large share of the world’s population. Farmers, students, and extension workers often inspect leaves first, because discoloration, lesions, stripes, folding, or stunting can signal disease complexes, insect damage, or poor growing conditions. Traditional diagnosis depends on experience and reference guides. Digital cameras on phones are now common, so the same leaf photographs can be processed by machine learning models that suggest which **label** in a fixed list best matches the visible pattern, provided the model was trained on representative images and its limits are explained clearly.
 
-**Traditional diagnosis** relies on trained observers. It remains the gold standard for legal and agronomic certification but is **difficult to scale** when the ratio of experts to farms is low, when visits are costly, or when learners need repeated practice with diverse imagery. **Digital photographs** are now ubiquitous; they can be analyzed with **machine learning** models that map pixels to **discrete diagnostic labels**, provided training data are representative and limitations are communicated honestly.
+This project implements **WMSU Rice Disease Detection**, a browser-oriented application that combines a deep learning **image classifier** with a simple web interface. A user uploads or pastes a photograph of a rice leaf, receives a predicted class with a numeric confidence score and a full score table, and can read short educational notes in an encyclopedia-style section of the app. The source code is kept in a public Git repository so that thresholds, dependencies, and API behavior can be verified directly instead of relying only on high-level descriptions.
 
-This project implements such a system as an **open, versioned software repository** ([rafsan on GitHub](https://github.com/alfahadadian04-blip/rafsan.git)): a **six-class rice leaf condition classifier** using a **YOLO11 classification (nano)** model, exposed through a **FastAPI** web API and consumed by a **React** single-page application. The same server process may serve the built frontend, enabling **single-origin** deployment suitable for laboratories and demonstration kiosks.
+### 1.2 Problem Statement
 
-### 1.2 Statement of the problem
+A model that scores well on a clean validation folder may still behave unpredictably on dark, blurry, or heavily compressed images taken in the field. Neural classifiers also tend to return a single “best” class even when several classes receive similar scores. The problem addressed by this work is how to deliver a **practical web-based** rice leaf classification service that (1) runs on a stack suitable for student deployment (Python API plus static React build), and (2) reports not only the top label and probabilities but also **structured cues** about input quality and prediction sharpness, so users are less likely to treat every output as equally trustworthy.
 
-There is a recurring gap between **offline benchmark accuracy** on curated folders and **trustworthy field-facing software**. Uploads from phones vary in resolution, lighting, orientation (EXIF), and provenance (camera vs. screenshot). Models can be **overconfident** on out-of-distribution inputs. The problem addressed here is:
+### 1.3 Objectives of the Study
 
-> How to deliver a **browser-accessible** rice leaf classification service that reports **not only a label and probabilities** but also **structured reliability cues**, while remaining maintainable as a small-team **full-stack** codebase on GitHub?
+The **general objective** is to design, implement, and document a web-based rice leaf condition classification system backed by a deep learning model trained on rice leaf imagery, with clear evaluation on held-out validation data.
 
-### 1.3 Objectives of the study
+The **specific objectives** are: (1) to use a **YOLO11 classification (nano)** model that discriminates among **six** classes aligned with the application (Leaf Blight, Rice Blast, Rice Leaffolder, Rice Stripes, Rice Tungro, Healthy Leaf); (2) to implement a **REST API** (`POST /predict`) that validates uploads, applies preprocessing and **multi-view inference**, and returns JSON including reliability-related fields; (3) to implement a **React** client with Home, Scan, Encyclopedia, and History tabs, including clipboard image paste and session-local history; (4) to provide a script **`evaluate_accuracy.py`** that prints **top-1** and **top-5** validation accuracy for local `dataset/` and `dataset_original_split/` roots when present; and (5) to ground training and reporting on the public **Rice Leaf Disease Dataset** hosted on Mendeley Data [1].
 
-**General objective.** To design, implement, and document a web-based rice leaf disease classification system integrated with a deep learning model and clear user-facing guidance.
+### 1.4 Scope and Limitations
 
-**Specific objectives.**
+The system is limited to the **six** trained classes; it does not identify rice varieties, growth stages, or specific pathogens beyond what those labels encode. Inference is **single-image** over HTTP; there is no batch satellite or drone pipeline. Scan **history** exists only in the browser for the current session and is lost on page reload. The API enables **CORS** for all origins in code (`allow_origins=["*"]`), which is convenient for classroom demos but is not ideal for public production without a reverse proxy and stricter policy.
 
-1. Train or fine-tune a **YOLO11n-cls** model for **six** outcome classes aligned with extension-style messaging.
-2. Implement a **REST API** (`POST /predict`) with **EXIF-aware preprocessing**, **quality screening**, **multi-view inference**, and **averaged class probabilities**.
-3. Implement **reliability logic** (confidence, margin, entropy, resolution) and human-readable **`message`** strings.
-4. Build a **React** client with **Home**, **Scan**, **Encyclopedia**, and **History** flows, including clipboard image paste and session history.
-5. Provide **offline validation** tooling (`evaluate_accuracy.py`) for **top-1 / top-5** reporting on local `val/` splits.
-6. Publish sources and this documentation on **[GitHub](https://github.com/alfahadadian04-blip/rafsan.git)** for replication and review.
+Outputs are **advisory** only: they support learning and triage, not legal phytosanitary certification or automatic pesticide prescriptions. Training-time augmentation and exact train commands live in the Ultralytics workflow on the developer machine; the repository’s runtime artifact assumed by the server is **`backend/yolo11n-cls.pt`**.
 
-### 1.4 Significance of the study
+### 1.5 Significance of the Study
 
-| Audience | Benefit |
-|----------|---------|
-| **Students** | Hands-on link between plant pathology vocabulary and model outputs. |
-| **Researchers** | Baseline pipeline for comparing architectures, calibration methods, or datasets. |
-| **Extension / ICT for agriculture** | Demonstrable artifact for workshops; advisory framing reduces false authority. |
-| **Developers** | Clear separation: `backend/main.py`, `frontend/src/`, weights path, evaluation script. |
-
-### 1.5 Scope and delimitations
-
-**In scope:** Six display classes (Leaf Blight, Rice Blast, Rice Leaffolder, Rice Stripes, Rice Tungro, Healthy Leaf); single-image HTTP inference; session-local history; documented constants in `backend/main.py`.
-
-**Out of scope:** Fine-grained pest species ID beyond trained classes; **hyperspectral** or **satellite** inputs; **automated pesticide prescription**; **guaranteed regulatory compliance** in all jurisdictions; **persistent multi-user cloud accounts** in the baseline repository.
-
-### 1.6 Assumptions
-
-- Training labels in local datasets are sufficiently correct for supervised learning.
-- Deployment hosts provide enough RAM to hold the YOLO model resident in memory.
-- Users can read the current English UI strings unless localization is added later.
-
-### 1.7 Definition of terms
-
-| Term | Meaning in this system |
-|------|-------------------------|
-| **YOLO11n-cls** | Ultralytics YOLO **classification** variant, nano width; outputs class probabilities for the whole image. |
-| **Top-1 accuracy** | Fraction of validation images where the highest-probability class equals the ground-truth folder label. |
-| **Top-5 accuracy** | Fraction where the true class appears among the five largest probabilities. |
-| **Multi-view inference** | Several deterministic image views (original, center-crop resize, mirror, mild contrast); probabilities **averaged** before argmax. |
-| **`is_reliable`** | Boolean from thresholds on top probability, margin, entropy, and resolution (see Chapter 3). |
-| **SPA** | Single-page application; built to `frontend/dist` and optionally served by FastAPI. |
+The work helps **students** connect plant health vocabulary to measurable model behavior and accuracy figures. It gives **instructors** a self-contained example of full-stack ML deployment (load model at startup, serve JSON, consume from React). **Researchers** can reuse the same pipeline to compare other checkpoints or calibration methods while keeping the API contract stable. For **agricultural extension** demonstrations, the encyclopedia tab links model outputs to short symptom and management notes, reinforcing that software should complement field experts rather than replace them.
 
 ---
 
-## Chapter 2 — Review of related literature and conceptual basis
+## Chapter 2 — Related Review of Literature and Technologies
 
-### 2.1 Plant disease imaging and agricultural deep learning
+### 2.1 Image-Based Plant Disease and Rice Leaf Classification
 
-Image-based plant disease detection has matured into a standard research thread: labeled leaf imagery, convolutional feature learning, and held-out evaluation [12], [15]. Surveys emphasize **dataset diversity** and **domain shift** when moving from growth-chamber captures to farmer-uploaded photos [30].
+Deep learning for image-based plant disease detection has been an active research area for many years; a widely cited example is the study by Mohanty *et al.* that used large labeled plant image sets with convolutional networks [2]. Work focused on rice leaves has similarly demonstrated that deep convolutional architectures can separate disease categories when training data are well structured [3]. Review-level discussion emphasizes that **dataset diversity** and **domain shift** strongly affect whether laboratory results transfer to farmer-uploaded photos [4]. Those themes justify using a public rice leaf corpus [1] and adding explicit checks in the inference API when user images differ from training conditions.
 
-### 2.2 Transfer learning and compact architectures
+### 2.2 Transfer Learning and Compact Models
 
-Transfer learning initializes deep networks from large-scale pretraining, then adapts final layers (or deeper blocks) to agricultural targets [29], [30]. Compact models (e.g., small CNN heads packaged in unified training frameworks) trade some accuracy for **latency** and **deployment simplicity**—relevant when inference runs on **CPU-only** classroom servers.
+Transfer learning—starting from weights learned on broad natural-image tasks and adapting to a smaller agricultural dataset—typically improves sample efficiency compared with training all layers from scratch [5]. Compact models reduce memory and latency, which matters when inference runs on **CPU-only** classroom machines. This project uses the **nano** variant of YOLO11 **classification** (`yolo11n-cls`), exposed through the Ultralytics library [6], as a deliberate trade-off between capacity and deployment simplicity.
 
-### 2.3 Uncertainty, calibration, and responsible UI
+### 2.3 Reliability, Calibration, and the User Interface
 
-Human–computer interaction research warns against **over-trust** in opaque scores. Complementary signals—**entropy**, **margin**, **input quality**—can gate language in the interface. Agronomic tools should remain **advisory** relative to certified experts and national regulations.
+Raw classifier scores are not always well **calibrated** as true probabilities; work such as Guo *et al.* discusses calibration of modern neural networks [7]. From a systems perspective, it is therefore reasonable to expose **margin** (gap between the top two classes), **entropy** of the distribution, and simple **input-quality** measures, and to phrase uncertain cases carefully in the returned `message` string. The implemented backend follows this idea with fixed numeric thresholds documented in Chapter 3.
 
-### 2.4 Synthesis and gap addressed by this repository
+### 2.4 Web Stack Technologies
 
-Prior work motivates **deep learned features**, **transfer learning**, and **cautious presentation**. The **[rafsan](https://github.com/alfahadadian04-blip/rafsan.git)** repository contributes a **fully wired** example: FastAPI + React + Ultralytics YOLO11-cls, with **explicit reliability JSON** and a public **Git** history for assignments and capstones.
+**FastAPI** provides a typed, asynchronous Python web framework suited to file uploads and JSON APIs [8]. **React** with **Vite** is a common toolchain for interactive single-page applications [9], [10]. In this repository, when `frontend/dist` exists after `npm run build`, the FastAPI app can serve the built static files and the `/assets` directory from the same process as `/predict`, which yields a **single-origin** deployment suitable for local demonstrations (`http://localhost:8000`).
 
-### 2.5 Conceptual framework
+### 2.5 Comparison with Typical Prior Work and Role of This System
 
-```text
-[Leaf image] → [Decode + EXIF + quality gate] → [Multi-view YOLO predict]
-      → [Average softmax] → [Reliability policy] → [JSON + UI encyclopedia/history]
-```
+Many academic papers report accuracy on a fixed test set but distribute only a notebook or weights file without a maintained web client. Commercial apps may offer polished branding but hide model version and decision rules. This **rafsan** implementation differs in concrete, inspectable ways: the **`build_inference_views`** function defines exactly four deterministic views whose probabilities are **averaged** before choosing the top class; the **`/predict`** response always includes **`all_scores`**, **`is_reliable`**, **`message`**, **`has_camera_metadata`**, **`has_low_resolution`**, and **`ensemble_views`**; and the **Encyclopedia** tab in `App.tsx` uses the same six class names as the model head, so the UI and the network stay aligned. The contribution is therefore best understood as **applied systems integration** with transparent behavior, rather than as a new neural architecture.
 
 ---
 
 ## Chapter 3 — Methodology
 
-### 3.1 Research design
+### 3.1 System Architecture
 
-**Applied software research** with **quantitative ML evaluation**: build the artifact, then measure **validation accuracy** using Ultralytics `val` via `evaluate_accuracy.py`. Qualitative UX evaluation (surveys, think-aloud) is recommended as future work.
+The system follows a layered layout. The **client layer** is the React application compiled to static files under `frontend/dist/`. The **service layer** is `backend/main.py`, a FastAPI application that exposes `GET /health` (returns `{"status": "ok"}`) and `POST /predict` for classification. If the distribution folder is present, the same process serves the SPA and static assets so users visit one origin for both UI and API. The **model layer** is a singleton `ModelSingleton` that loads `YOLO` once during application lifespan from `backend/yolo11n-cls.pt` if the file exists, otherwise from the configured filename string so Ultralytics can resolve pretrained weights. No server-side database is used; history is stored only in browser state.
 
-### 3.2 Data and labeling
+### 3.2 Technologies Used
 
-Images are organized in **YOLO classification layout**: `train/<class_name>/` and `val/<class_name>/`. Class names must match the model’s output head. Local dataset roots may include `dataset` and `dataset_original_split`; large corpora are typically **gitignored** on GitHub but retained on training machines.
+The backend dependencies listed in `backend/requirements.txt` are **FastAPI**, **Uvicorn**, **Ultralytics**, **python-multipart**, and **Pillow**. The frontend uses **React 18**, **TypeScript**, **Vite 6**, **Tailwind CSS 3**, **Lucide React** icons, and **Framer Motion** (see `frontend/package.json`). Model training and validation are performed with the Ultralytics ecosystem; the shipped artifact for the running website is the `.pt` classification file beside `main.py`.
 
-### 3.3 Model training and selection
+### 3.3 Data Collection
 
-Training uses the **Ultralytics** ecosystem (hyperparameters recorded in run artifacts under `runs/` locally). The promoted checkpoint is copied or saved as **`backend/yolo11n-cls.pt`**, which the API loads at startup through `ModelSingleton`.
+The project’s rice leaf photographs are drawn from the **Rice Leaf Disease Dataset** published on Mendeley Data [1]. After download, images are organized for Ultralytics **classification** training into folder trees `train/<class_name>/` and `val/<class_name>/`, where each subfolder name matches one of the six labels the classifier must learn. In the development workspace used for this document, two parallel roots were maintained: **`dataset/`** (with 3106 training images and 1532 validation images across six classes, as reported by Ultralytics during `evaluate_accuracy.py`) and **`dataset_original_split/`** (2499 train and 629 validation images), allowing comparison between an augmented or reorganized split and a more conservative split. Academic citation of the image source should use reference [1]:
 
-### 3.4 System architecture
+[1] Mendeley Data, "Rice Leaf Disease Dataset," Available: https://data.mendeley.com/datasets/vwv3nry3wr/1
 
-| Layer | Artifact | Responsibility |
-|--------|-----------|------------------|
-| Presentation | `frontend/src/` (React) | Tabs, scan, encyclopedia, history, `fetch` to `/predict`. |
-| Application | `backend/main.py` (FastAPI) | HTTP, validation, optional static hosting of `frontend/dist`. |
-| Intelligence | `ultralytics.YOLO` | Class probabilities per view. |
-| Session memory | Browser React state | History list; object URLs revoked on delete/clear. |
+### 3.4 Data Preprocessing
 
-### 3.5 Inference algorithm (summary)
+**Training-time** resizing and augmentation are governed by Ultralytics defaults and any custom settings the trainer used when producing `yolo11n-cls.pt`; those steps are not hard-coded in `main.py`. **Inference-time** preprocessing is fully specified in `predict`. Uploaded bytes must have an `image/*` content type and non-empty body. Pillow opens the file; **`ImageOps.exif_transpose`** corrects orientation from EXIF. The image is converted to **RGB**. EXIF tags 271 and 272 are read to set **`has_camera_metadata`**. Width and height below **224** pixels set **`has_low_resolution`** to true (the reliability rule still uses this flag even though the image is not rejected solely for size). A grayscale copy is used to compute pixel standard deviation; if it is below **18.0**, the handler responds with HTTP **400** and the message asking for a clearer, well-lit photo, which prevents nearly flat images from entering the model.
 
-Implementation reference: `backend/main.py` in the [repository](https://github.com/alfahadadian04-blip/rafsan.git).
+### 3.5 Model and Algorithm Used
 
-1. Validate `Content-Type` is `image/*`; reject empty body.  
-2. Open bytes with Pillow; **`ImageOps.exif_transpose`** for orientation.  
-3. Read EXIF make/model flags → `has_camera_metadata`.  
-4. Convert to RGB; set `has_low_resolution` if width or height `< 224`.  
-5. **Brightness spread** on grayscale: standard deviation must be **≥ 18.0**; else HTTP 400.  
-6. Build **four views** (`build_inference_views`): original, square center crop resized to original size, horizontal mirror, contrast enhance 1.08×.  
-7. `model.predict` each view; sum valid `probs` vectors; divide by count → **averaged** distribution.  
-8. Compute **top-1**, **second class**, **margin**, **Shannon entropy** (with small epsilon).  
-9. `is_reliable` iff top ≥ **0.68**, margin ≥ **0.12**, entropy ≤ **1.35**, and not low-resolution.  
-10. Compose **`message`** from optional warnings (metadata, resolution, weak confidence).  
-11. Return JSON keys: `label`, `confidence`, `all_scores`, `is_reliable`, `message`, `has_camera_metadata`, `has_low_resolution`, `ensemble_views`.
+The classifier is **YOLO11n-cls** [6]. For each accepted image, **`build_inference_views`** returns four tensors as PIL images: the RGB canvas after EXIF correction; a **square center crop** resized back to the original width and height with bicubic resampling; a **horizontal mirror**; and a **contrast-enhanced** copy with factor **1.08**. Each view is passed through `model.predict(..., verbose=False)`. Class probability vectors from `prediction.probs.data` are accumulated and divided by the number of valid views to produce an **averaged** distribution. The predicted **`label`** is the class name at the argmax of that average; **`confidence`** is that class’s score. The implementation also computes the margin between the top and second class and the **Shannon entropy** of the averaged distribution (with a small epsilon inside the logarithm for stability). **`is_reliable`** is true only when the top score is at least **0.68**, the margin is at least **0.12**, entropy is at most **1.35**, and the image is not low-resolution by the 224-pixel rule; otherwise the same argmax label is still returned but **`is_reliable`** is false and **`message`** collects human-readable warnings (missing camera metadata, low resolution, or weak confidence).
 
-### 3.6 Frontend methodology
+### 3.6 System Workflow
 
-`frontend/src/App.tsx` posts **`FormData`** with field name **`image`**. Default URL is **`/predict`**; override with **`VITE_API_URL`** for split dev servers. **AbortController** enforces a **15-second** timeout.
-
-### 3.7 Evaluation methodology
-
-`evaluate_accuracy.py` loads default weights **`backend/yolo11n-cls.pt`**, runs `model.val(data=root, split="val")` for each configured dataset root, and prints **Top-1** and **Top-5** percentages. Re-run after any retrain to refresh thesis tables.
-
-### 3.8 Ethical considerations
-
-Plant images only; no PII in baseline design. Outputs are **not** a license to apply restricted chemicals without local rules. Clear **encyclopedia** text encourages best practices and expert follow-up.
+Step **one**, the operator builds the frontend with `npm run build` inside `frontend/` and starts Uvicorn on `main:app` from the `backend/` directory, optionally after installing Python dependencies into the project virtual environment. Step **two**, at startup the lifespan context loads the YOLO weights into memory so the first request does not pay the full disk read penalty alone. Step **three**, the user opens the site in a browser; if static files are mounted, the Home tab loads from `index.html`. Step **four**, on the Scan tab the user chooses an image or uses **Paste Image**, which uses the Clipboard API when available. Step **five**, pressing **Run Scan** builds `FormData` with the field name **`image`** and sends `POST` to `/predict` (or to the URL in environment variable **`VITE_API_URL`** during split development), with a **15-second** abort timeout implemented via `AbortController` in `App.tsx`. Step **six**, the server validates the upload, runs preprocessing and the four-view prediction pipeline, and returns JSON. Step **seven**, the client displays the predicted label, numeric confidence, sorted **`all_scores`**, and warning text when **`is_reliable`** is false, and appends the scan to **History** with a blob URL thumbnail. Step **eight**, the Encyclopedia tab shows static symptom and action paragraphs keyed by the same six class names for interpretation. Step **nine**, for offline metrics the developer runs **`python evaluate_accuracy.py`** from the repository root, which loads `backend/yolo11n-cls.pt` and calls `model.val(data=<root>, split="val")` for each existing dataset root, printing top-1 and top-5 percentages.
 
 ---
 
-## Chapter 4 — Presentation, analysis, and interpretation of results
+## Chapter 4 — Results and Discussion
 
-### 4.1 Quantitative validation (illustrative)
+### 4.1 Quantitative Validation Outputs
 
-Run **`python evaluate_accuracy.py`** from the repository root (with venv and dependencies installed). Example results from documented runs on comparable setups:
+Validation was executed with **`evaluate_accuracy.py`** on the machine used for this write-up (Ultralytics **8.4.43**, **Python 3.14.3**, **PyTorch 2.11.0+cpu**, Intel **Core i5-1155G7**, CPU inference). The script reported **YOLO11n-cls** with about **1.53 million** parameters and approximately **3.2 GFLOPs** for the fused model summary line emitted during validation.
 
-| Dataset root | Top-1 (example) | Top-5 (example) |
-|----------------|-----------------|-----------------|
-| `dataset` | ≈ 86.6% | ≈ 99.7% |
-| `dataset_original_split` | ≈ 81.4% | ≈ 99.8% |
+On the **`dataset/`** root, the validator scanned **1532** images in **`val/`** across six classes and printed **top-1 accuracy 86.55%** and **top-5 accuracy 99.74%**. On **`dataset_original_split/`**, it scanned **629** validation images and printed **top-1 accuracy 81.40%** and **top-5 accuracy 99.84%**. The gap in top-1 performance between the two roots is expected when splits differ in size, augmentation, or class balance; top-5 staying near ceiling for only **six** classes shows that the true label almost always appears among the strongest few responses even when the argmax is wrong.
 
-**Analysis.** The gap between roots suggests **distribution or split differences** (augmentation policy, relabeling, or class proportions). **Top-5** near ceiling with **six** classes indicates the true label usually ranks highly even when top-1 fails.
+These numbers are **not** hard-coded in the application; they are produced by rerunning the script whenever weights or splits change. If a dataset folder is missing, the script exits with an error for the default configuration rather than fabricating metrics.
 
-**Interpretation.** Metrics support the Chapter 1 objective of a **usable** classifier on held-out imagery, while Chapter 3’s **reliability layer** addresses inputs that metrics alone do not describe (screenshots, dark photos).
+### 4.2 Runtime Behavior and API Outputs
 
-### 4.2 System behavior and qualitative observations
+The live **`/predict`** endpoint returns a JSON object with keys **`label`**, **`confidence`**, **`all_scores`** (a map from class name to averaged probability), **`is_reliable`**, **`message`**, **`has_camera_metadata`**, **`has_low_resolution`**, and **`ensemble_views`** (the count of views that returned valid probability tensors, normally four). Extremely dark or flat images are rejected before inference with HTTP 400, which is visible in the Scan tab as an error message parsed from the response body. When predictions complete, the UI lists all classes sorted by score so students can see near-ties between visually similar conditions.
 
-- **Quality gate** rejects extremely flat/dark images to avoid meaningless softmax outputs.  
-- **Multi-view averaging** tends to **stabilize** predictions on minor pose and contrast variation.  
-- **Metadata warnings** inform users that pasted images may behave differently from camera captures without blocking prediction outright where the pipeline still returns a result.
+### 4.3 Strengths and Limitations
 
-### 4.3 Limitations observed in engineering practice
-
-- **Session-only history** resets on reload—document for users expecting cloud sync.  
-- **CORS `*`** simplifies demos but should be tightened for production.  
-- **CPU vs GPU** latency varies; document hardware used in any formal timing study.
+**Strengths** include end-to-end reproducibility from repository to running site, small model footprint suitable for CPU deployment, deterministic multi-view averaging that reduces sensitivity to mild framing and contrast changes, and explicit reliability messaging. **Limitations** include dependence on the six-label taxonomy from training data [1], no guarantee of generalization to unseen farms or cultivars, session-only history, open CORS in the source configuration, and fixed reliability thresholds that were chosen as engineering constants rather than learned from user studies.
 
 ---
 
-## Chapter 5 — Summary, conclusions, and recommendations
+## Chapter 5 — Conclusion and Recommendation
 
-### 5.1 Summary of findings
+### 5.1 Conclusion
 
-1. A **six-class** rice leaf classification stack was implemented and open-sourced at **[github.com/alfahadadian04-blip/rafsan](https://github.com/alfahadadian04-blip/rafsan.git)**.  
-2. The backend combines **FastAPI**, **Pillow preprocessing**, **multi-view YOLO11n-cls inference**, and **structured reliability fields**.  
-3. The frontend delivers **scan**, **encyclopedia**, and **history** experiences aligned with extension-style communication.  
-4. **Offline validation** is reproducible via **`evaluate_accuracy.py`**.
+This study implemented and documented **WMSU Rice Disease Detection**, a working integration of the Rice Leaf Disease Dataset [1], a **YOLO11n-cls** classifier, a **FastAPI** inference service with preprocessing and reliability logic, and a **React** client with scan, encyclopedia, and history features. Offline validation through **`evaluate_accuracy.py`** yielded **86.55%** top-1 and **99.74%** top-5 accuracy on the larger `dataset/` validation split, and **81.40%** top-1 with **99.84%** top-5 on `dataset_original_split/`, demonstrating strong ranking behavior with top-1 accuracy that depends on the exact split in use. The live API’s quality gate and JSON fields address part of the Chapter 1 problem statement by making uncertainty and input issues visible instead of hiding them behind a single percentage.
 
-### 5.2 Conclusions
+### 5.2 Recommendations
 
-The system **meets its scoped engineering goals**: reproducible code, documented API, and transparent scoring. It **does not** remove the need for **field experts** or compliance with **local plant protection** rules. Validation accuracy is **dataset-dependent**; all numeric claims should be **re-measured** on the reader’s frozen splits.
-
-### 5.3 Recommendations
-
-**Research**
-
-- Publish a **frozen test set** and per-class precision/recall tables.  
-- Add **confusion matrices** and calibration curves (ECE) to the thesis appendix.  
-- Conduct **user studies** with extension audiences.
-
-**Engineering**
-
-- Add **HTTPS** reverse proxy, **rate limiting**, and **structured logging** for public deployment.  
-- Version the **model file** in API responses (`model_version` field) for audit trails.  
-- Optional **SQLite** or cloud DB for persistent history.
-
-**Repository hygiene**
-
-- Keep **[GitHub](https://github.com/alfahadadian04-blip/rafsan.git)** README synchronized with run commands and documentation links.  
-- Pin dependency versions for long-term reproducibility.
+For **future research**, publishing per-class precision and recall, confusion matrices, and calibration curves would strengthen formal reporting; conducting surveys or interviews with agriculture students about the clarity of **`message`** text would improve human factors evidence. For **future engineering**, adding HTTPS, authentication or rate limits as needed, returning a **`model_version`** or checksum in JSON, tightening CORS, and optionally persisting history in a small database would move the same codebase toward production hardening. For **data practice**, any new imagery merged from local field campaigns should be documented alongside [1] so readers can tell which results come from the public benchmark and which from supplementary collections.
 
 ---
 
-## References (starter set — expand per your institution’s style)
+## References
 
-\[12] Mohanty, S. P., Hughes, D. P., & Salathé, M. (2016). Using deep learning for image-based plant disease detection. *Frontiers in Plant Science*, 7, 1419.  
+[1] Mendeley Data, "Rice Leaf Disease Dataset," Available: https://data.mendeley.com/datasets/vwv3nry3wr/1  
 
-\[15] Sethy, P. K., et al. (2020). Detection and classification of rice leaf diseases using trained deep CNNs. *IEEE Access*, 8, 107359–107371.  
+[2] S. P. Mohanty, D. P. Hughes, and M. Salathé, "Using deep learning for image-based plant disease detection," *Frontiers in Plant Science*, vol. 7, p. 1419, 2016. Available: https://www.frontiersin.org/articles/10.3389/fpls.2016.01419  
 
-\[29] Pan, S. J., & Yang, Q. (2010). A survey on transfer learning. *IEEE Transactions on Knowledge and Data Engineering*, 22(10), 1345–1359.  
+[3] P. K. Sethy *et al.*, "Detection and classification of rice leaf diseases using trained deep CNNs," *IEEE Access*, vol. 8, pp. 107359–107371, 2020. Available: https://ieeexplore.ieee.org/document/9095358  
 
-\[30] Barbedo, J. G. A. (2018). Impact of dataset size and variety on the effectiveness of deep learning and transfer learning for plant disease classification. *Computers and Electronics in Agriculture*, 153, 46–53.  
+[4] J. G. A. Barbedo, "Impact of dataset size and variety on the effectiveness of deep learning and transfer learning for plant disease classification," *Computers and Electronics in Agriculture*, vol. 153, pp. 46–54, 2018. Available: https://www.sciencedirect.com/science/article/pii/S0168169917310591  
 
-**Ultralytics YOLO documentation:** https://docs.ultralytics.com/  
+[5] S. J. Pan and Q. Yang, "A survey on transfer learning," *IEEE Trans. Knowledge and Data Engineering*, vol. 22, no. 10, pp. 1345–1359, 2010. Available: https://ieeexplore.ieee.org/document/5288526  
 
-**FastAPI documentation:** https://fastapi.tiangolo.com/  
+[6] Ultralytics, "YOLO11 Documentation," Available: https://docs.ultralytics.com/models/yolo11/  
+
+[7] C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, "On calibration of modern neural networks," in *Proc. ICML*, 2017. Available: https://proceedings.mlr.press/v70/guo17a.html  
+
+[8] FastAPI, "FastAPI documentation," Available: https://fastapi.tiangolo.com/  
+
+[9] Meta Open Source, "React — A JavaScript library for building user interfaces," Available: https://react.dev/  
+
+[10] Vite, "Vite documentation," Available: https://vite.dev/  
 
 ---
 
-*End of Chapters 1–5. Canonical source: [https://github.com/alfahadadian04-blip/rafsan.git](https://github.com/alfahadadian04-blip/rafsan.git).*
+*Implementation source: [https://github.com/alfahadadian04-blip/rafsan.git](https://github.com/alfahadadian04-blip/rafsan.git). Validation figures in Chapter 4 were produced by `evaluate_accuracy.py` on the author’s development machine in May 2026.*

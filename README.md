@@ -11,9 +11,7 @@ Production-ready rice variety and condition classifier powered by FastAPI + YOLO
 
 Repository: [https://github.com/alfahadadian04-blip/rafsan.git](https://github.com/alfahadadian04-blip/rafsan.git)
 
-- **System documentation (Chapters 1–5):** [docs/SYSTEM_DOCUMENTATION_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_CHAPTERS_1_TO_5.md) — introduction, related literature, methodology, results, conclusions; written for this codebase.
-- **Full technical manual (longer, ~30+ pages in Word):** [docs/SYSTEM_DOCUMENTATION_FOR_GITHUB.md](docs/SYSTEM_DOCUMENTATION_FOR_GITHUB.md) — regenerate with `myenv\Scripts\python.exe docs\generate_github_system_documentation.py`.
-- **Also in `docs/`:** [CODE_REFERENCE_CHAPTERS_1_TO_5.md](docs/CODE_REFERENCE_CHAPTERS_1_TO_5.md), [SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_THESIS_FORMAT_CHAPTERS_1_TO_5.md), professor-format guides (`SYSTEM_DOCUMENTATION_PROFESSOR_FORMAT*.md`), and generator scripts.
+- **System documentation (Chapters 1–5):** [docs/SYSTEM_DOCUMENTATION_CHAPTERS_1_TO_5.md](docs/SYSTEM_DOCUMENTATION_CHAPTERS_1_TO_5.md) — introduction through conclusions, IEEE-style references, aligned with this codebase (regenerate validation numbers locally with `evaluate_accuracy.py`).
 
 ## Run as a Website (Production-style)
 
